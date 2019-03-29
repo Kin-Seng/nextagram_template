@@ -1,12 +1,12 @@
-from flask import Blueprint, render_template, request,redirect,flash,url_for
+from flask import Blueprint,Flask, render_template, request,redirect,flash,url_for
 from werkzeug.security import generate_password_hash
 from models.user import User
+
 # import hashlib
 
 users_blueprint = Blueprint('users',
                             __name__,
                             template_folder='templates')
-
 
 @users_blueprint.route('/new', methods=['GET'])
 def new():
@@ -34,15 +34,36 @@ def sign_up_new():
         u = User(username=username,password=hashed_pwd,email=email)
         if u.save():
             flash(username + ' Creation Successful!')
-            return redirect('/new')
+            return redirect('/users/sign_up')
         else:
-            return render_template('users/sign_up.html', name=username, errors=u.errors)   
+            # return redirect('/users/sign_up', name=username, errors=u.errors)
+            flash(username + ' Creation Failed!')
+            return render_template('users/sign_up.html', name=username, errors=u.errors)
 
-    
+
+#sign in display
+@users_blueprint.route('/sign_in', methods=['GET'])
+def sign_in():
+    return render_template('users/sign_in.html')
+
+#sign in function
+@users_blueprint.route('/sign_up/new', methods=['POST'])
+def sign_in_new():
+    username = request.form['username']
+    password = request.form['pwd']
+
+    #search DB
+    login = User.select().where(User.username=username,User.password=password)
+    pass
+
+
+
+
 
 @users_blueprint.route('/new/<id>', methods=['POST'])
 def create(id):
     pass
+
 
 @users_blueprint.route('/<username>', methods=["GET"])
 def show(username):

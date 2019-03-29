@@ -8,7 +8,7 @@ class User(BaseModel):
     username = pw.CharField(unique=True)
 
     def validate(self):
-        duplicate_new_user = User.get_or_none(User.username == self.username,User.password==self.password,User.email==self.email)
+        duplicate_new_user = User.get_or_none(User.username == self.username or User.password==self.password or User.email==self.email)
         
         if duplicate_new_user:
             self.errors.append('Username, password and email is not unique!')
