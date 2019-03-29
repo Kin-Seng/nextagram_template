@@ -13,9 +13,6 @@ def parse_db_url(database_url):
 
 def return_db():
 
-    DB_TIMEOUT=300 # 5 minutes
-    DB_POOL=5
-    
     db_config = parse_db_url(os.environ['DATABASE_URL'])
 
     if os.getenv('MIGRATION', '0') == '1':
