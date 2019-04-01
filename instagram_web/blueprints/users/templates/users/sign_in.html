@@ -1,0 +1,41 @@
+{% extends "_layout.html" %}
+{% block title %}
+  Sign In
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<h1>Sign In </h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!-- {{session["secret_key"]}} -->
+
+<form action="{{ url_for('users.sign_in_new') }}" method="POST" style="padding:20px" >
+    <div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </div>
+    <div class="form-group">
+        <label for="username">Username :</label>
+        <input type="text" class="form-control" name="username"  minlength="0" maxlngth="20" placeholder="Please Enter Your Username">
+        <small id="usernameHelp" class="form-text text-muted">We'll never share your username with anyone else.</small>
+    </div>
+    <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password" class="form-control" name="pwd" minlength="6" maxlength="8" placeholder="Password">
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}

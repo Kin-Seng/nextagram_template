@@ -1,0 +1,45 @@
+{% extends "_layout.html" %}
+{% block title %}
+  Sign Up
+{% endblock %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+<h1>Sign Up </h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form action="{{ url_for('users.sign_up_new') }}" method="POST" id="signup_form">
+<div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+</div>
+<div class="row">
+    <div class="col-md-4">
+      <div class="form-group">
+          <div class="container">
+              <label for="email">Email :</label>
+              <input type="email" name="email">
+              <br>
+              <label for="username">Username :</label>
+              <input type="text" name="username">
+              <br>
+              <label for="pwd">Password :</label>
+              <input type="password" name="pwd">
+              <br>
+              <button type="submit" class="btn btn-success">Sign Up</button>
+          </div>
+      </div>
+    </div>
+</div>
+</form>
+{% endblock %}
