@@ -72,6 +72,7 @@ def sign_in_new():
         # session['user_id']= checkUsername.first().id
 
         load_user(currentUser)
+        # login_user(currentUser)
 
         flash("Login Successful!")
         return redirect('/users/sign_up')
@@ -80,11 +81,6 @@ def sign_in_new():
         flash("Wrong Username or Password!")
         return render_template('users/sign_in.html')
     
-    
-
-
-
-
 
 @users_blueprint.route('/new/<id>', methods=['POST'])
 def create(id):
