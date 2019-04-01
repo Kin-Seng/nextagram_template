@@ -4,6 +4,7 @@ from flask import Flask
 from models.base_model import db
 from flask_wtf.csrf import CSRFProtect
 from flask_login import LoginManager
+from flask import render_template
 
 web_dir = os.path.join(os.path.dirname(
     os.path.abspath(__file__)), 'instagram_web')
