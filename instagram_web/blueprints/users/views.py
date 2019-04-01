@@ -1,7 +1,7 @@
-from flask import Blueprint,Flask, render_template, request,redirect,flash,url_for
-from werkzeug.security import generate_password_hash
+from flask import Blueprint,Flask, render_template, request,redirect,flash,url_for,session
+from werkzeug.security import generate_password_hash,check_password_hash
 from models.user import User
-
+from app import login_manager
 # import hashlib
 
 users_blueprint = Blueprint('users',
@@ -34,11 +34,11 @@ def sign_up_new():
         u = User(username=username,password=hashed_pwd,email=email)
         if u.save():
             flash(username + ' Creation Successful!')
-            return redirect('/users/sign_up')
+            return redirect('/users/sign_in')
         else:
             # return redirect('/users/sign_up', name=username, errors=u.errors)
             flash(username + ' Creation Failed!')
-            return render_template('users/sign_up.html', name=username, errors=u.errors)
+            return render_template('users/sign_in.html', name=username, errors=u.errors)
 
 
 #sign in display
@@ -46,15 +46,41 @@ def sign_up_new():
 def sign_in():
     return render_template('users/sign_in.html')
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(User.id == user_id)
+
 #sign in function
-@users_blueprint.route('/sign_up/new', methods=['POST'])
+@users_blueprint.route('/sign_in/new', methods=['POST'])
 def sign_in_new():
     username = request.form['username']
     password = request.form['pwd']
-
+    
     #search DB
-    login = User.select().where(User.username=username,User.password=password)
-    pass
+    currentUser = User.select().where(User.username == username)    
+
+    db_pwd = User.select().where(User.username == username).first().password
+    result = check_password_hash(db_pwd, password)
+
+    # self.load_user(checkUsername.id)
+
+    if currentUser.count() == 1 and result :    
+
+        # Store user_id in Cookies(In-browser memory)
+        # session[:user_id] = User.id
+        # request.session['user_id'] = User.id
+        # session['user_id']= checkUsername.first().id
+
+        load_user(currentUser)
+
+        flash("Login Successful!")
+        return redirect('/users/sign_up')
+        
+    else:
+        flash("Wrong Username or Password!")
+        return render_template('users/sign_in.html')
+    
+    
 
 
 
