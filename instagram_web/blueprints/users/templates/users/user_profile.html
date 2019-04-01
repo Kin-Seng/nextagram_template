@@ -1,0 +1,12 @@
+{% extends "_layout.html" %}
+{% block title %}
+  User Profile
+{% endblock %}
+
+{% block content %}
+
+{% if current_user.is_authenticated %}
+    <h1>Hi! Welcome {{ current_user.username }} !</h1>
+{% endif %}
+
+{% endblock %}

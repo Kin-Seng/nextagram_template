@@ -2,6 +2,7 @@ from flask import Blueprint,Flask, render_template, request,redirect,flash,url_f
 from werkzeug.security import generate_password_hash,check_password_hash
 from models.user import User
 from app import login_manager
+from flask_login import login_user
 # import hashlib
 
 users_blueprint = Blueprint('users',
@@ -48,7 +49,7 @@ def sign_in():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(User.id == user_id)
+    return User.get_by_id(user_id)
 
 #sign in function
 @users_blueprint.route('/sign_in/new', methods=['POST'])
@@ -57,25 +58,23 @@ def sign_in_new():
     password = request.form['pwd']
     
     #search DB
-    currentUser = User.select().where(User.username == username)    
+    currentUser = User.select().where(User.username == username).first()    
 
     db_pwd = User.select().where(User.username == username).first().password
     result = check_password_hash(db_pwd, password)
 
-    # self.load_user(checkUsername.id)
-
-    if currentUser.count() == 1 and result :    
+    if currentUser and result :    
 
         # Store user_id in Cookies(In-browser memory)
         # session[:user_id] = User.id
         # request.session['user_id'] = User.id
         # session['user_id']= checkUsername.first().id
-
-        load_user(currentUser)
-        # login_user(currentUser)
+        
+        # load_user(currentUser)
+        login_user(currentUser)
 
         flash("Login Successful!")
-        return redirect('/users/sign_up')
+        return render_template('users/user_profile.html')
         
     else:
         flash("Wrong Username or Password!")
