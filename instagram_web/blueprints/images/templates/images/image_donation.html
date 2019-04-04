@@ -1,0 +1,45 @@
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://js.braintreegateway.com/web/dropin/1.17.0/js/dropin.min.js"></script>
+</head>
+<body>
+    
+    <h1>This is Image Donation screen</h1>
+
+    <img src="http://{{bucket_name}}.s3.amazonaws.com/{{pic.img_name}}" alt="">
+
+    <div id="payment_method_nonce"></div>
+    
+    <form action="{{url_for('images.donation',id= pic.id,pic=pic) }}" method="POST" id="nounce_form">
+        <label for="donate_ammount">How much you want to Donate (in USD) :</label>
+        <input type="number" step="any" id="donation_amt" name="donation_amt" required>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" id ="pymt_nounce" name="payment_nounce" value="">
+        
+        <button id="submit-button" class="btn btn-success">Donate</button>
+    </form>
+
+
+    <script>
+        var button = document.querySelector('#submit-button');
+
+        braintree.dropin.create({
+        authorization: '{{client_token}}',
+        container: '#payment_method_nonce'
+        }, function (createErr, instance) {
+        button.addEventListener('click', function (e) {
+            e.preventDefault;
+            instance.requestPaymentMethod(function (err, payload) {
+            // Submit payload.nonce to your server
+
+            // set to hidden input
+            document.getElementById("pymt_nounce").value = payload.nonce  
+            
+            // submit the form
+            document.getElementById("nounce_form").submit()
+            });
+        });
+        });
+    </script>
+</body>
