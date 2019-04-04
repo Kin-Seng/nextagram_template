@@ -7,6 +7,7 @@ class User(BaseModel,UserMixin):
     email = pw.CharField(unique=True)
     password  = pw.CharField()
     username = pw.CharField(unique=True)
+    profile_pic = pw.CharField(unique=True,null=True)
 
     def validate(self):
         duplicate_new_user = User.get_or_none(User.username == self.username or User.password==self.password or User.email==self.email)

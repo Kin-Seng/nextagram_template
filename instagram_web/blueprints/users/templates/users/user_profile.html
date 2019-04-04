@@ -5,8 +5,40 @@
 
 {% block content %}
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 {% if current_user.is_authenticated %}
-    <h1>Hi! Welcome {{ current_user.username }} !</h1>
+    <h1>User Profile</h1>
+    <h1>Hi! Welcome {{ user.username }} !</h1>
+
+    <img style="max-width: 150px" src="http://{{bucket_name}}.s3.amazonaws.com/{{user.profile_pic}}" alt="" style="max-width: 150px;">
+    
+    {% if current_user == user %}
+        <a href="{{ url_for('users.edit_user',id = current_user.id)}}"><button class="btn btn-warning">Edit User Profile</button></a>
+        <form action="{{ url_for('users.specific_usr_upload_img',id = current_user.id) }}" method="POST" enctype="multipart/form-data">
+            <div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            </div>
+            <label for="user_upload_img">Upload Img: </label>
+            <input type="file" name="user_upload_img" accept="image/*">
+            
+            <button type="submit" class="btn btn-success">Upload</button>
+        </form>
+        
+    {% endif %}
+    <hr>
+    {% for img in user.images %}
+        <img style="max-width: 300px;" src="http://{{bucket_name}}.s3.amazonaws.com/{{img.img_name}}" alt="">
+    {% endfor %}
+
 {% endif %}
 
 {% endblock %}

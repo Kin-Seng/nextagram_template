@@ -1,0 +1,54 @@
+{% extends "_layout.html" %}
+{% block title %}
+  Edit User Profile : {{current_user.username}}
+{% endblock %}
+
+{% block content %}
+
+{% if current_user.is_authenticated %}
+    <h1>Edit User Profile</h1>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+    {{current_user.id}}
+    <form action="{{ url_for('users.update_user', id=current_user.id)}}" method="POST">    
+        <div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        </div>   
+        <div padding="10px">
+            <div class="row">
+                <div class="col-md-2">
+                    <div>Profile Picture</div>
+                    <div>Username :</div><br>
+                    <div>Email :</div><br>
+                    <div>Old Password :</div><br>
+                    <div>New Password :</div><br>
+                    <div>Confirm Password :</div><br>
+                </div>
+                <div class="col-md-6">
+                    <div><input type="file" name="prof_pic" accept="image/*"></div>
+                    <div><input type="text" name="username" value={{current_user.username}}></div><br>
+                    <div><input type="text" name="email" value={{current_user.email}}></div><br>
+                    <div><input type="password" name="old_pwd" minlength="6" maxlength="8"></div><br>
+                    <div><input type="password" name="new_pwd" minlength="6" maxlength="8"></div><br>
+                    <div><input type="password" name="confirm_pwd" minlength="6" maxlength="8"></div>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+
+
+
+
+
+
+{% endif %}
+
+{% endblock %}

@@ -19,7 +19,7 @@
   {% endif %}
 {% endwith %}
 
-<form action="{{ url_for('users.sign_up_new') }}" method="POST" id="signup_form">
+<form action="{{ url_for('users.sign_up_new') }}" method="POST" id="signup_form" enctype="multipart/form-data">
 <div>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 </div>
@@ -27,6 +27,9 @@
     <div class="col-md-4">
       <div class="form-group">
           <div class="container">
+              <label for="profile_pic">Profile Pic :</label>
+              <input type="file" name="profile_pic" ><br><br>
+            
               <label for="email">Email :</label>
               <input type="email" name="email">
               <br>
