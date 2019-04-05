@@ -23,7 +23,7 @@ gateway = braintree.BraintreeGateway(
 )
 
 
-
+# SendGrid - send email service
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -41,3 +41,30 @@ try:
     print(response.headers)
 except Exception as e:
     print(e.message)
+
+
+# Google Sign-in
+from authlib.flask.client import OAuth
+from app import app
+from config import Config,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET
+
+oauth = OAuth(app)
+oauth.register('google',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    refresh_token_url=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    client_kwargs={
+        'scope': 'https://www.googleapis.com/auth/userinfo.email',
+        'token_endpoint_auth_method': 'client_secret_basic',
+        'token_placement': 'header',
+        'prompt': 'consent'
+    }
+)
+
+
+
+
