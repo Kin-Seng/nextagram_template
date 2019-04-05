@@ -1,4 +1,4 @@
-from flask import Blueprint,Flask, render_template, request,redirect,flash,url_for,session
+from flask import Blueprint,Flask, render_template, request,redirect,flash,url_for,session,jsonify
 from werkzeug.security import generate_password_hash,check_password_hash
 from models.user import User
 from models.images import Images
@@ -8,6 +8,7 @@ from helpers import s3
 # import hashlib
 import os
 from config import S3_LOCATION
+
 
 users_blueprint = Blueprint('users',
                             __name__,
@@ -44,7 +45,7 @@ def sign_up_new():
         u = User(username=username,password=hashed_pwd,email=email,profile_pic=upload_file.filename)
         if u.save():
             flash(username + ' Creation Successful!')
-            return render_template('users/user_profile.html')
+            return render_template('users/user_profile.html',user=current_user)
         else:
             # return redirect('/users/sign_up', name=username, errors=u.errors)
             flash(username + ' Creation Failed!')
@@ -128,6 +129,43 @@ def sign_in_new():
         flash("Wrong Username or Password!")
         return render_template('users/sign_in.html')
  
+from helpers import oauth
+
+######   Each Service API will have 1 set of 2 functions below  ######
+@users_blueprint.route('/login', methods=["GET"])
+def login():
+    redirect_uri = url_for('users.authorize', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@users_blueprint.route('/authorize', methods=["GET"])
+def authorize():
+    token = oauth.google.authorize_access_token()
+    user_info = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()
+    email = user_info['email']
+
+    result = User.select().where(User.email == email).first()
+
+    # you can save the token into database
+
+    if result: 
+        # redirect to this user's profile page
+        return redirect(url_for("users.user_profile",id=result.id))
+        
+    else:
+        flash("Email do not exist. Please register yourself in our App using ur email address")
+        return redirect(url_for("users.sign_up"))    
+    
+    
+
+##########################################################################
+
+
+
+
+
+
+
+
 # display edit screen
 @users_blueprint.route('/edit_user/<id>', methods=['GET'])
 @login_required

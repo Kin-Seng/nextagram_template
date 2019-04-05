@@ -36,7 +36,9 @@
         <input type="password" class="form-control" name="pwd" minlength="6" maxlength="8" placeholder="Password">
     </div>
     
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <a class="btn btn-primary" href="{{ url_for('users.sign_up')}}">Sign Up</a>
+    <button type="submit" class="btn btn-success">Sign In</button>
+    <a class="btn btn-danger" href="{{ url_for('users.login')}}">Sign In With Google</a>
 </form>
 
 {% endblock %}

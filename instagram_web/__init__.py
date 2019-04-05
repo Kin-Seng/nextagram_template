@@ -5,6 +5,8 @@ from instagram_web.blueprints.images.views import images_blueprint
 from flask_assets import Environment, Bundle
 from .util.assets import bundles
 
+from helpers import OAuth
+
 assets = Environment(app)
 assets.register(bundles)
 
@@ -14,6 +16,8 @@ app.register_blueprint(images_blueprint, url_prefix="/images")
 app     = Flask(__name__)
 app.config.from_object("config")
 # app.config.from_object("flask_s3_upload.config")
+oauth = OAuth(app)
+oauth.init_app(app)
 
 @app.errorhandler(500)
 def internal_server_error(e):
@@ -28,6 +32,7 @@ def create_app(config_filename):
     app = Flask(__name__)
     app.register_error_handler(404, page_not_found)
     return app
+
 
 # default page is set here
 @app.route("/")

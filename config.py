@@ -44,3 +44,7 @@ PORT                      = 5000
 BT_MERCHANT_ID            = os.environ.get("BT_MERCHANT_ID")
 BT_PUBLIC_KEY             = os.environ.get("BT_PUBLIC_KEY")
 BT_PRIVATE_KEY            = os.environ.get("BT_PRIVATE_KEY")
+
+#OAuth 2.0 : Google API Keys
+GOOGLE_CLIENT_ID = '712067619954-j5uentdlsdoemrsj64qcfv6at7p447uf.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = 'e3Ae47xeF_GNldG0aHwLZ_is'
