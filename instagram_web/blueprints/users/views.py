@@ -91,7 +91,8 @@ def user_profile(id):
     user = User.get_by_id(id)
     bucket_name = os.environ.get('S3_BUCKET_NAME') 
     # breakpoint() 
-    if int(id) != current_user.id:
+     
+    if id:
         follow = Follower.select().where(Follower.target_user==user, Follower.follower_id==current_user.id).first()
         
         # followers
