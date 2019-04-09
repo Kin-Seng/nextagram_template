@@ -19,6 +19,12 @@
             <li class="nav-item">
               <a class="nav-link" href="{{url_for('users.user_profile',id=current_user.id)}}">{{current_user.username}}</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('users.sign_in')}}">Sign In</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('users.sign_up')}}">Sign Up</a>
+            </li>
           </ul>
           <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
