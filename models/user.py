@@ -1,4 +1,6 @@
 from models.base_model import BaseModel
+
+from playhouse.hybrid import hybrid_property
 import peewee as pw
 import hashlib
 from flask_login import UserMixin
@@ -10,8 +12,21 @@ class User(BaseModel,UserMixin):
     profile_pic = pw.CharField(unique=True,null=True)
     private = pw.BooleanField(default=False)
 
+    # def followers(self,selected_user):
+        #select all the followers of that specific user
+
     def get_user_id(self):
         return self.id
+
+    @hybrid_property
+    def followers(self):
+        from models.follower import Follower
+        return User.select().join(Follower, on=(User.id==Follower.follower_id)).where((Follower.target_user_id == self.id))
+
+    @hybrid_property
+    def following(self):
+        from models.follower import Follower
+        return User.select().join(Follower, on=(User.id==Follower.target_user_id)).where((Follower.follower_id == self.id))
 
     def validate(self):
 

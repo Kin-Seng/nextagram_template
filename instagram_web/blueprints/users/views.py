@@ -2,12 +2,17 @@ from flask import Blueprint,Flask, render_template, request,redirect,flash,url_f
 from werkzeug.security import generate_password_hash,check_password_hash
 from models.user import User
 from models.images import Images
+from models.follower import Follower
 from app import login_manager,app
 from flask_login import login_user, login_required, current_user
 from helpers import s3
 # import hashlib
 import os
 from config import S3_LOCATION
+
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 
 users_blueprint = Blueprint('users',
@@ -79,13 +84,26 @@ def upload_file_to_s3(file, bucket_name, acl="public-read"):
 
 
 
+
 #user profile display
 @users_blueprint.route('/user_profile/<id>', methods=['GET'])
 def user_profile(id):
+    #current profile user_id
     user = User.get_by_id(id)
-    bucket_name =os.environ.get('S3_BUCKET_NAME')    
-    return render_template('users/user_profile.html',bucket_name = bucket_name, user=user)
-    
+    bucket_name = os.environ.get('S3_BUCKET_NAME')  
+    if id != current_user.id:
+        follow = Follower.select().where(Follower.target_user==user, Follower.follower_id==current_user.id).first()
+        
+        # followers
+        followers = Follower.select().join(User, on=(Follower.target_user == User.id)).where(Follower.target_user == id).count()
+
+        # following
+        following = Follower.select().join(User, on=(Follower.follower_id == User.id)).where(Follower.follower_id == id).count()
+
+        return render_template('users/user_profile.html',bucket_name = bucket_name, user=user, follow = follow, followingNo = following, followersNo = followers)
+    else:
+        return render_template('users/user_profile.html',bucket_name = bucket_name, user=user)
+
 
 #sign in display
 @users_blueprint.route('/sign_in', methods=['GET'])
@@ -143,8 +161,9 @@ def authorize():
     user_info = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()
     email = user_info['email']
 
-    result = User.select().where(User.email == email).first()
+    # email = oauth.google.get('https://www.googleapis.com/oauth2/v2/userinfo').json()['email']
 
+    result = User.select().where(User.email == email).first()
     # you can save the token into database
 
     if result: 
@@ -152,18 +171,105 @@ def authorize():
         return redirect(url_for("users.user_profile",id=result.id))
         
     else:
+        #create a new acc for this user
+        
+        #sign him in & redirect to his own profile page  
         flash("Email do not exist. Please register yourself in our App using ur email address")
         return redirect(url_for("users.sign_up"))    
     
     
 
 ##########################################################################
+@users_blueprint.route('/follow/<user_id>')
+def follow(user_id):
+    
+    user_id = int(user_id)
+    
+    #save in Follower table
+    Follower(target_user=user_id,follower_id=current_user.id).save()
+
+    f = Follower.select().where(Follower.target_user==user_id, Follower.follower_id==current_user.id).first()
+    
+    #send email , rmb to include link with the target user's id
+    # message = Mail(
+    #     from_email='from_email@example.com',
+    #     to_emails='kaizerneos@gmail.com',
+    #     subject=f'{current_user.username} requested to follow you!',
+    #     html_content=f'<strong>Here are the links to view all your Fan requests <a href="http://localhost:5000/users/fan_request/{user_id}">http://localhost:5000/users/fan_request/{user_id}</a></strong>')
+    # try:
+    #     sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+    #     response = sg.send(message)
+    #     print(response.status_code)
+    #     print(response.body)
+    #     print(response.headers)
+    # except Exception as e:
+    #     print(e.message)
+
+
+    
+    bucket_name = os.environ.get('S3_BUCKET_NAME')
+    return render_template('/users/user_profile.html',bucket_name = bucket_name, user=user_id, follow = f)
+
+@users_blueprint.route('/unfollow/<user_id>')
+def unfollow(user_id):
+
+    Follower.delete().where(Follower.target_user==user_id, ).execute()
+
+    pass
+
+
+# @users_blueprint.route('/privacy')
+# def chgPrivacy():
 
 
 
 
+# fan request list display view
+@users_blueprint.route('/fan_request/<id>', methods=['GET'])
+def fan_request(id):    
+    user = User.get_by_id(id)
+    fan_request_list = user.followers.where(Follower.approve_sts == False, Follower.target_user == id)
+
+    bucket_name = os.environ.get('S3_BUCKET_NAME')
+    return render_template('users/fan_request.html',bucket_name = bucket_name,fan_request_list = fan_request_list)
 
 
+# accept fan request
+@users_blueprint.route('/accept_request/<id>', methods=['GET'])
+def accept_request(id):
+    
+    id=int(id)
+    # ar = Follower.select().where(Follower.target_user == id and  Follower.follower_id = cur_user_id)
+    user = User.get_by_id(id) 
+    fan_list = user.followers.where(Follower.approve_sts == False, Follower.target_user==id)
+    
+    # update Follower table
+    f = Follower.update(approve_sts=True).where(Follower.approve_sts==False, Follower.target_user==id , Follower.follower_id==current_user.id)
+    f.execute()
+    # breakpoint()
+
+    bucket_name = os.environ.get('S3_BUCKET_NAME')
+    return render_template('users/fan_request.html',bucket_name = bucket_name,user=user,fan_request_list=fan_list)
+
+
+# reject fan request
+@users_blueprint.route('/reject_request/<id>', methods=['GET'])
+def reject_request(id):
+    id=int(id)
+
+    current_user.id = 39
+
+    user = User.get_by_id(id) 
+    fan_list = user.followers.where(Follower.approve_sts == False, Follower.target_user==id)
+
+    #delete record in Follower table
+    f = Follower.delete().where(Follower.approve_sts==False, Follower.target_user==current_user.id , Follower.follower_id==id)
+    f.execute()
+
+    # breakpoint()
+
+    bucket_name = os.environ.get('S3_BUCKET_NAME')
+    return render_template('users/fan_request.html',bucket_name = bucket_name, user=user ,fan_request_list=fan_list)
 
 
 # display edit screen

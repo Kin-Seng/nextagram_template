@@ -1,0 +1,25 @@
+{% extends "_layout.html" %}
+{% block content %}
+<h1>Welcome to the Fan Request List Page</h1>
+
+
+<div class="row">  
+    {% for request in fan_request_list %}
+        <div class="col-md-6">
+            {% if request.profile_pic == NULL %}
+                <img class="prof_pic" src="http://{{bucket_name}}.s3.amazonaws.com/locked_profile.png" alt="">
+            {% else %}
+                <img class="prof_pic" src="http://{{bucket_name}}.s3.amazonaws.com/{{request.profile_pic}}" alt="">
+            {% endif %}
+            {{request.username}}
+            <a class="btn btn-success" href="{{ url_for('users.accept_request',id = request.id)}}">{{request.id}} : Accept Request</a>
+            <a class="btn btn-danger" href="{{ url_for('users.reject_request',id = request.id)}}">{{request.id}} : Reject Request</a>
+            <br><br>
+        </div>
+    {% endfor %}
+    
+</div>
+
+
+
+{% endblock %}
