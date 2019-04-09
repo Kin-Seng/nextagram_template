@@ -16,13 +16,18 @@
 {% endwith %}
 
 {% if current_user.is_authenticated %}
-    <h1>User Profile</h1>
-    <h1>Hi! Welcome {{ user.username }} !</h1>
+    <h1>User Profile   Hi! Welcome {{ user.username }} !</h1>
+    <div>
+        <label for="followers">Followers: {{followersNo}}</label><br>
+        <label for="following">Following: {{followingNo}}</label>
+    </div>
 
-    <img style="max-width: 150px" src="http://{{bucket_name}}.s3.amazonaws.com/{{user.profile_pic}}" alt="" style="max-width: 150px;">
+    <img class="prof_pic" src="http://{{bucket_name}}.s3.amazonaws.com/{{user.profile_pic}}" alt="">
     
     {% if current_user == user %}
-        <a href="{{ url_for('users.edit_user',id = current_user.id)}}"><button class="btn btn-warning">Edit User Profile</button></a>
+        <a class="btn btn-warning" href="{{ url_for('users.edit_user',id = current_user.id)}}">Edit User Profile</a>
+        <a class="btn btn-warning" href="{{ url_for('users.edit_user',id = current_user.id)}}">Change Privacy</a>
+        <button class="btn btn-primary">Private: {{user.private}}</button>
         <form action="{{ url_for('users.specific_usr_upload_img',id = current_user.id) }}" method="POST" enctype="multipart/form-data">
             <div>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -32,13 +37,28 @@
             
             <button type="submit" class="btn btn-success">Upload</button>
         </form>
-        
+    {% elif current_user != user and follow.approve_sts == False: %}
+      <a><button class="btn btn-warning disabled">Pending Approval</button></a>
+    {% elif current_user != user and follow.approve_sts == True: %}
+      <a><button class="btn btn-danger">Unfollow</button></a>   
+    {% else %}
+      <a class="btn btn-warning" href="{{ url_for('users.follow',user_id = user)}}">Follow</a> 
     {% endif %}
-    <hr>
-    {% for img in user.images %}
-        <img style="max-width: 300px;" src="http://{{bucket_name}}.s3.amazonaws.com/{{img.img_name}}" alt="">
-    {% endfor %}
 
-{% endif %}
+    <hr>
+    {% if user.id == current_user.id or follow.approve_sts == True %}
+      {% for img in user.images %}
+        <img class="img_gallery" src="http://{{bucket_name}}.s3.amazonaws.com/{{img.img_name}}" alt="">  
+      {% endfor %}
+    {% elif user.private or follow.approve_sts == False %}
+    <img class="img_gallery" src="http://{{bucket_name}}.s3.amazonaws.com/locked_profile.png" alt="">
+    <div>This User is Private/ You will need to follow</div>
+    {% else %}
+      {% for img in user.images %}
+        <img class="img_gallery" src="http://{{bucket_name}}.s3.amazonaws.com/{{img.img_name}}" alt="">  
+      {% endfor %}
+    {% endif %}
+
+    {% endif %}
 
 {% endblock %}

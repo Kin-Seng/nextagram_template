@@ -1,1 +1,9 @@
 /* put your css here */
+.prof_pic{
+    border-radius: 90px;
+    max-width:150px;
+}
+
+.img_gallery{
+    max-width:300px;
+}

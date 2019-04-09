@@ -8,7 +8,7 @@
         <label for="username">{{user.username}}</label>
         <a class="btn btn-primary" href="{{url_for('users.user_profile',id=user.id)}}">View Profile</a><br>
         {% if user.profile_pic %}
-        <img src="http://{{bucket_name}}.s3.amazonaws.com/{{user.profile_pic}}" alt="">
+        <img class="prof_pic" src="http://{{bucket_name}}.s3.amazonaws.com/{{user.profile_pic}}" alt="">
         {% else %}
         <img src="http://{{bucket_name}}.s3.amazonaws.com/no-image.png" alt="">
         {% endif %}
@@ -16,14 +16,18 @@
         <br>
         <hr>
         <div>
-            {% for image in user.images %}
-                {% if image.img_name %}
-                
-                    <img src="http://{{bucket_name}}.s3.amazonaws.com/{{image.img_name}}" alt="">
-                    <a href="{{ url_for('images.donation',id = image.id)}}"><button class="btn btn-warning">Donation</button></a>
-                {% endif %}
-            <br>
-            {% endfor %}
+            {% if user.private %}
+            <div>This User is Private</div>
+            <img class= "img_gallery" src="http://{{bucket_name}}.s3.amazonaws.com/locked_profile.png" alt="">
+            {% else %}
+                {% for image in user.images %}
+                    {% if image.img_name %}     
+                        <img class= "img_gallery" src="http://{{bucket_name}}.s3.amazonaws.com/{{image.img_name}}" alt="">
+                        <a href="{{ url_for('images.donation',id = image.id)}}"><button class="btn btn-warning">Donation</button></a>
+                    {% endif %}
+                <br>
+                {% endfor %}
+            {% endif %}
             <hr>
         </div>
 

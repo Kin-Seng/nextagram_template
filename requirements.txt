@@ -11,12 +11,14 @@ chardet==3.0.4
 Click==7.0
 colorama==0.4.1
 cryptography==2.6.1
+cssmin==0.2.0
 docutils==0.14
 Flask==1.0.2
 Flask-Assets==0.12
 Flask-Cors==3.0.7
 Flask-Login==0.4.1
 Flask-WTF==0.14.2
+gunicorn==19.9.0
 idna==2.8
 isort==4.3.15
 itsdangerous==1.1.0
