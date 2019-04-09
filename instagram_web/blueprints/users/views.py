@@ -89,8 +89,9 @@ def upload_file_to_s3(file, bucket_name, acl="public-read"):
 def user_profile(id):
     #current profile user_id
     user = User.get_by_id(id)
-    bucket_name = os.environ.get('S3_BUCKET_NAME')  
-    if id != current_user.id:
+    bucket_name = os.environ.get('S3_BUCKET_NAME') 
+    # breakpoint() 
+    if int(id) != current_user.id:
         follow = Follower.select().where(Follower.target_user==user, Follower.follower_id==current_user.id).first()
         
         # followers
@@ -316,9 +317,10 @@ def specific_usr_upload_img(id):
         upload_file_to_s3(upload_file, os.environ.get('S3_BUCKET_NAME'))
         #save in DB
         i = Images(user_id=current_user.id,img_name=upload_file.filename)
+        # breakpoint()
         if i.save():
             flash('Image Uploaded Successfully!')
-            return redirect('/users/user_profile')
+            return redirect(url_for('users.user_profile',id=id))
         else:
             flash('Upload Image Failed!')
             return render_template('/users/sign_in.html', errors=i.errors)

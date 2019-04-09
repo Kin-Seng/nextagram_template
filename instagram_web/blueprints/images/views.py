@@ -20,6 +20,7 @@ images_blueprint = Blueprint('images',
 def new(): 
     # prefetch: prevent case like n+1 query    
     user_with_images = prefetch(User.select(), Images.select())
+    # breakpoint()
     return render_template('images/image_galery.html', bucket_name = os.environ.get('S3_BUCKET_NAME'),user_with_images=user_with_images)
 
 #show specific image donation screen 
