@@ -15,11 +15,16 @@
   {% endif %}
 {% endwith %}
 
-{% if current_user.is_authenticated %}
+
     <h1>User Profile   Hi! Welcome {{ user.username }} !</h1>
     <div>
-        <label for="followers">Followers: {{followersNo}}</label><br>
-        <label for="following">Following: {{followingNo}}</label>
+        {% if  follow=='' or followingNo=='' or  followersNo == '' %}
+          <label for="followers">Followers: -</label><br>
+          <label for="following">Following: -</label>
+        {% else %}
+          <label for="followers">Followers: {{followersNo}}</label><br>
+          <label for="following">Following: {{followingNo}}</label>
+        {% endif %}  
     </div>
 
     <img class="prof_pic" src="http://{{bucket_name}}.s3.amazonaws.com/{{user.profile_pic}}" alt="">
@@ -60,6 +65,5 @@
       {% endfor %}
     {% endif %}
 
-    {% endif %}
 
 {% endblock %}

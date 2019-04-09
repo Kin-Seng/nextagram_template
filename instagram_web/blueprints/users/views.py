@@ -90,20 +90,24 @@ def user_profile(id):
     #current profile user_id
     user = User.get_by_id(id)
     bucket_name = os.environ.get('S3_BUCKET_NAME') 
-    # breakpoint() 
-     
-    if id:
-        follow = Follower.select().where(Follower.target_user==user, Follower.follower_id==current_user.id).first()
-        
-        # followers
-        followers = Follower.select().join(User, on=(Follower.target_user == User.id)).where(Follower.target_user == id).count()
+    
+    if current_user.is_authenticated:
+        if int(id) != current_user.id:
+            follow = Follower.select().where(Follower.target_user==user, Follower.follower_id==current_user.id).first()
+            
+            # followers
+            followers = Follower.select().join(User, on=(Follower.target_user == User.id)).where(Follower.target_user == id).count()
 
-        # following
-        following = Follower.select().join(User, on=(Follower.follower_id == User.id)).where(Follower.follower_id == id).count()
+            # following
+            following = Follower.select().join(User, on=(Follower.follower_id == User.id)).where(Follower.follower_id == id).count()
 
-        return render_template('users/user_profile.html',bucket_name = bucket_name, user=user, follow = follow, followingNo = following, followersNo = followers)
+            return render_template('users/user_profile.html',bucket_name = bucket_name, user=user, follow = follow, followingNo = following, followersNo = followers)
+        else:
+            return render_template('users/user_profile.html',bucket_name = bucket_name, user=user)
     else:
-        return render_template('users/user_profile.html',bucket_name = bucket_name, user=user)
+
+        return render_template('users/user_profile.html',bucket_name = bucket_name, user=user, follow='', followingNo='', followersNo='')
+
 
 
 #sign in display
