@@ -37,10 +37,11 @@
             
             <button type="submit" class="btn btn-success">Upload</button>
         </form>
-    {% elif current_user != user and follow.approve_sts == False: %}
-      <a><button class="btn btn-warning disabled">Pending Approval</button></a>
-    {% elif current_user != user and follow.approve_sts == True: %}
-      <a><button class="btn btn-danger">Unfollow</button></a>   
+      {% if current_user != user and follow.approve_sts == False: %}
+        <a><button class="btn btn-warning disabled">Pending Approval</button></a>
+      {% elif current_user != user and follow.approve_sts == True: %}
+        <a><button class="btn btn-danger">Unfollow</button></a>   
+      {% endif %}  
     {% else %}
       <a class="btn btn-warning" href="{{ url_for('users.follow',user_id = user)}}">Follow</a> 
     {% endif %}

@@ -34,8 +34,6 @@ def sign_up():
 def sign_up_new():
     username = request.form['username']   
     password = request.form['pwd']
-    # password = hashlib.md5(password.encode())
-    # password = password.hexdigest()
     
     email = request.form['email']
 
@@ -48,11 +46,12 @@ def sign_up_new():
 
         # upload_file.filename
         u = User(username=username,password=hashed_pwd,email=email,profile_pic=upload_file.filename)
+
+        # breakpoint()
         if u.save():
             flash(username + ' Creation Successful!')
             return render_template('users/user_profile.html',user=current_user)
         else:
-            # return redirect('/users/sign_up', name=username, errors=u.errors)
             flash(username + ' Creation Failed!')
             return render_template('users/sign_in.html', name=username, errors=u.errors)
 
